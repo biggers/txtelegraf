@@ -12,16 +12,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from builtins import str
-from builtins import object
 from __future__ import (
     absolute_import,
     division,
     print_function,
     unicode_literals)
 
+from builtins import str
+from builtins import object
+
 import time
-from types import StringTypes
 
 # NOTE: Single slashes have bad edge cases in the parser.
 # We will strip them out.
@@ -63,7 +63,7 @@ format_field_name = format_tag
 
 
 def format_field_value(v):
-    if isinstance(v, StringTypes):
+    if isinstance(v, str):
         v = v.replace(quote, escaped_quote)
         return '"%s"' % v
     # before the int check because bools are ints and ints are not bools
@@ -100,12 +100,19 @@ def format_fields(fields):
 class Measurement(object):
     """
     Field Values:
-        Floats - by default, InfluxDB assumes all numerical field values are floats.
-        Integers - append an i to the field value to tell InfluxDB to store the number as an integer.
-        Strings - double quote string field values
-        Booleans - specify TRUE with t, T, true, True, or TRUE. Specify FALSE with f, F, false, False, or FALSE.
+        Floats - by default, InfluxDB assumes all numerical field
+        values are floats.
 
-    For tag keys, tag values, and field keys always use a backslash character \ to escape:
+        Integers - append an i to the field value to tell InfluxDB to
+        store the number as an integer.
+
+        Strings - double quote string field values
+
+        Booleans - specify TRUE with t, T, true, True, or
+        TRUE. Specify FALSE with f, F, false, False, or FALSE.
+
+    For tag keys, tag values, and field keys always use a backslash
+    character \ to escape:
     commas ,
     equal signs =
     spaces
@@ -117,9 +124,11 @@ class Measurement(object):
     For string field values use a backslash character \ to escape:
     double quotes "
 
-    For best performance you should sort tags by key before sending them to the database.
+    For best performance you should sort tags by key before sending
+    them to the database.
 
-    ref:  https://docs.influxdata.com/influxdb/v1.0/write_protocols/line_protocol_tutorial/
+    REF:  https://docs.influxdata.com/influxdb/v1.0/write_protocols/line_protocol_tutorial/
+
     """
     __slots__ = ['name', 'tags', 'fields', 'time']
 
@@ -152,4 +161,5 @@ class Measurement(object):
         return " ".join((element0, element1, element2))
 
     def __str__(self):
-        return str(self).encode('utf-8')
+        # return str(self).encode('utf-8')
+        return self.__unicode__()

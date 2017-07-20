@@ -1,0 +1,62 @@
+# Python 2/3 compile-bits
+__pycache__/
+*.py[cod]
+*~
+*[0-9].py
+
+# C extensions
+*.so
+
+# IDEs - PyCharm etc
+*.iml
+.idea/
+
+# Py build(out)s, pkgs
+.cache
+*.egg
+*.egg-info
+*.log
+.installed.cfg
+bin
+build
+develop-eggs
+dist
+eggs
+lib
+lib64
+parts
+sdist
+var
+src
+
+# ** no private-keys or OS_auth, in Git repo **
+*.key
+secure.yaml
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# Translations
+*.pot
+*.mo
+
+# Buildout - mr-developer
+.mr.developer.cfg
+.project
+.pydevproject
+
+# Project-specific!
+local_settings.py
+project_slug
+my_test_project/*
+reqs.t
+
+# Mac OSX :(
+.DS_Store
+.AppleDouble
+.LSOverride

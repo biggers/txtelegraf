@@ -17,41 +17,33 @@ from __future__ import (
     print_function,
     unicode_literals)
 
-import sys
-import logging
-
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
 from txtelegraf import TelegrafTCPClient, TelegrafUDPClient, Measurement
 from twisted.internet.task import deferLater
+# from txtelegraf.main import log
+from twisted.python import log
+
+import sys
+from examples.dummy import dummy_openstack_query
 
 
 def sendFailed(failure, measurement):
-    print()
-    print('<sendFailed>', measurement)
-    print('\t', failure)
+    """ """
+    log.err('{measure}'.format(measure=measurement))
+    log.err(failure)
+    return None
 
 
 @inlineCallbacks
 def writeMeasurements(client):
-    measurement_values = [
-        ('Chris', 6.5, 10.0, 85, 'run1'),
-        ('Chris', 6.8, 11.0, 90, 'run1'),
-        ('Chris', 6.2, 12.0, 83, 'run1')
-    ]
-    for runner_name, speed, distance, heart_rate, run_id in measurement_values:
-        measurement = Measurement(
-            "run_stats",
-            tags={
-                "runner_name": runner_name,
-                "run_id": run_id
-            },
-            fields={
-                "speed": speed,
-                "distance": distance,
-                "heart_rate": heart_rate
-            }
-        )
+
+    for result in dummy_openstack_query:
+
+        name = result['measurement']
+        del result['measurement']  # do not break Measurement constructor!
+        measurement = Measurement(name, **result)
+        log.msg('{data}'.format(data=measurement))
 
         yield deferLater(reactor, 1, client.sendMeasurement, measurement)\
             .addErrback(sendFailed, measurement)
@@ -63,10 +55,13 @@ def main():
     TELEGRAF_TCP_PORT = os.getenv('TELEGRAF_TCP_PORT', 8094)
     TELEGRAF_UDP_PORT = os.getenv('TELEGRAF_UDP_PORT', 8092)
 
+    log.startLogging(sys.stdout)
+
     client = (len(sys.argv) > 1 and sys.argv[1] == 'udp'
               and TelegrafUDPClient(TELEGRAF_HOST, TELEGRAF_UDP_PORT)) \
         or TelegrafTCPClient(TELEGRAF_HOST, TELEGRAF_TCP_PORT)
-    print("Using client", client.__class__.__name__)
+
+    log.msg("Using client {cli}".format(cli=client.__class__.__name__))
 
     def closeClient(*args):
         return client.close()
@@ -77,10 +72,10 @@ def main():
     writeMeasurements(client)\
         .addCallbacks(closeClient, closeClient)\
         .addCallbacks(stopReactor, stopReactor)
+    # .addErrback(sendFailed, 'some failure in writeMeasurements')
 
     reactor.run()
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
     main()

@@ -12,50 +12,50 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from builtins import str
-from builtins import object
-from __future__ import (absolute_import, unicode_literals)
 
-import logging
+from __future__ import (absolute_import, unicode_literals)
 
 from twisted.internet.protocol import DatagramProtocol
 from twisted.internet import reactor
 from twisted.internet.defer import succeed, Deferred
+from twisted.python import log
 
-logger = logging.getLogger(__name__)
+from txtelegraf.makebytes import b
 
-DEFAULT_HOST = "127.0.0.1"
-DEFAULT_UDP_PORT = 8092
+# import sys
+# from twisted.logger import textFileLogObserver, Logger
+# log = Logger(observer=textFileLogObserver(sys.stdout))
 
 
 class TelegrafUDPProtocol(DatagramProtocol):
 
-    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_UDP_PORT):
+    def __init__(self, host, port):
         self.host = host
         self.port = port
         self.closed_d = None
 
     def startProtocol(self):
-        logger.debug('<TelegrafUDPProtocol.startProtocol>')
+        log.msg('<TelegrafUDPProtocol.startProtocol>')
         self.closed_d = Deferred()
         self.transport.connect(self.host, self.port)
 
     def stopProtocol(self):
-        logger.debug('<TelegrafUDPProtocol.stopProtocol>')
+        log.msg('<TelegrafUDPProtocol.stopProtocol>')
         self.closed_d.callback(0)
 
     def write(self, s):
-        logger.debug('<TelegrafUDPProtocol.write>')
+        log.msg('<TelegrafUDPProtocol.write>')
         return self.transport.write(s + b"\n")  # returns bytes sent
 
     def close(self):
         if self.transport is not None:
             self.transport.loseConnection()
+        log.msg('<TelegrafUDPProtocol.close>')
         return self.closed_d
 
 
 class TelegrafUDPClient(object):
-    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_UDP_PORT):
+    def __init__(self, host, port):
         self.host = host
         self.port = port
         self.proto = None
@@ -67,7 +67,7 @@ class TelegrafUDPClient(object):
 
     def sendMeasurement(self, measurement):
         self.getConnection()
-        self.proto.transport.write(str(measurement), (self.host, self.port))
+        self.proto.transport.write(b(str(measurement)), (self.host, self.port))
         return succeed(1)
 
     def close(self):

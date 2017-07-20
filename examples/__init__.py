@@ -18,15 +18,8 @@ from __future__ import (
     print_function,
     unicode_literals)
 
-from txtelegraf.measurement import Measurement
-from txtelegraf.udp import TelegrafUDPClient
-from txtelegraf.tcp import TelegrafTCPClient
-from txtelegraf.makebytes import b
-
+from examples.dummy import dummy_openstack_query
 
 __all__ = [
-    'Measurement',
-    'TelegrafUDPClient',
-    'TelegrafTCPClient',
-    'b',
+    'dummy_openstack_query',
 ]

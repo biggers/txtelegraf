@@ -12,28 +12,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from builtins import str
-from builtins import object
 from __future__ import (absolute_import, unicode_literals)
 
-import logging
+from builtins import str
+from builtins import object
 
 from twisted.internet import reactor
-from twisted.internet.defer import inlineCallbacks, returnValue, Deferred, succeed
+
+from twisted.internet.defer import (
+    inlineCallbacks,
+    returnValue,
+    Deferred,
+    succeed)
+
 from twisted.protocols.basic import LineOnlyReceiver
 from twisted.protocols import policies
 from twisted.internet.endpoints import TCP4ClientEndpoint
 from twisted.internet.protocol import Factory
+from twisted.python import log
 
-logger = logging.getLogger(__name__)
-
-DEFAULT_HOST = "127.0.0.1"
-DEFAULT_TCP_PORT = 8094
+from txtelegraf.makebytes import b
 
 
 class TelegrafTCPClient(object):
 
-    def __init__(self, host=DEFAULT_HOST, port=DEFAULT_TCP_PORT):
+    def __init__(self, host, port):
         self.host = host
         self.port = port
         self.factory = TelegrafTCPFactory()
@@ -55,7 +58,7 @@ class TelegrafTCPClient(object):
         returnValue(proto.sendMeasurement(measurement))
 
     def close(self):
-        logger.debug('<TelegrafTCPClient.close>')
+        log.msg('<TelegrafTCPClient.close>')
         return self.proto.close()
 
 
@@ -74,7 +77,7 @@ class TelegrafTCPProtocol(LineOnlyReceiver, policies.TimeoutMixin, object):
         return self.closed_d
 
     def connectionMade(self):
-        logger.debug('<TelegrafProtocol.connectionMade> %s', self)
+        log.msg('<TelegrafProtocol.connectionMade> %s', self)
         self.closed_d = Deferred()
         self.connected = 1
         LineOnlyReceiver.connectionMade(self)
@@ -82,15 +85,15 @@ class TelegrafTCPProtocol(LineOnlyReceiver, policies.TimeoutMixin, object):
     def connectionLost(self, reason):
         self.connected = 0
         self.closed_d.callback(0)
-        logger.debug('<TelegrafProtocol.connectionLost> %s %s', reason, self)
+        log.msg('<TelegrafProtocol.connectionLost> %s %s', reason, self)
         LineOnlyReceiver.connectionLost(self)
 
     def sendMeasurement(self, measurement):
-        logger.debug('Sending %s', str(measurement))
-        return self.sendLine(str(measurement))
+        log.msg('Sending %s', str(measurement))
+        return self.sendLine(b(str(measurement)))
 
     def lineReceived(self, line):
-        logger.debug("<TelegrafProtocol.lineReceived> %s", line)
+        log.msg("<TelegrafProtocol.lineReceived> %s", line)
 
     def logPrefix(self):
         return self.__class__.__name__
