@@ -12,6 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from builtins import str
+from builtins import object
 from __future__ import (absolute_import, unicode_literals)
 
 import logging
@@ -22,8 +24,9 @@ from twisted.internet.defer import succeed, Deferred
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_HOST="127.0.0.1"
-DEFAULT_UDP_PORT=8092
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_UDP_PORT = 8092
+
 
 class TelegrafUDPProtocol(DatagramProtocol):
 

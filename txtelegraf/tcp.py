@@ -12,6 +12,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from builtins import str
+from builtins import object
 from __future__ import (absolute_import, unicode_literals)
 
 import logging
@@ -25,8 +27,9 @@ from twisted.internet.protocol import Factory
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_HOST="127.0.0.1"
-DEFAULT_TCP_PORT=8094
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_TCP_PORT = 8094
+
 
 class TelegrafTCPClient(object):
 
@@ -54,6 +57,7 @@ class TelegrafTCPClient(object):
     def close(self):
         logger.debug('<TelegrafTCPClient.close>')
         return self.proto.close()
+
 
 class TelegrafTCPProtocol(LineOnlyReceiver, policies.TimeoutMixin, object):
     delimiter = b'\n'
@@ -90,6 +94,7 @@ class TelegrafTCPProtocol(LineOnlyReceiver, policies.TimeoutMixin, object):
 
     def logPrefix(self):
         return self.__class__.__name__
+
 
 class TelegrafTCPFactory(Factory):
     protocol = TelegrafTCPProtocol

@@ -11,7 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import (absolute_import, division, print_function, unicode_literals)
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals)
 
 import sys
 import logging
@@ -21,8 +25,10 @@ from twisted.internet.defer import inlineCallbacks
 from txtelegraf import TelegrafTCPClient, TelegrafUDPClient, Measurement
 from twisted.internet.task import deferLater
 
+
 def sendFailed(failure, measurement):
     print('<sendFailed>', failure, measurement)
+
 
 @inlineCallbacks
 def writeMeasurements(client):
@@ -32,17 +38,18 @@ def writeMeasurements(client):
         ('Chris', 6.2, 12.0, 83, 'run1')
     ]
     for runner_name, speed, distance, heart_rate, run_id in measurement_values:
-        measurement = Measurement("run_stats",
-            tags={"runner_name": runner_name, "run_id": run_id},
-            fields={"speed": speed, "distance": distance, "heart_rate": heart_rate}
-        )
+        measurement = Measurement(
+            "run_stats", tags={
+                "runner_name": runner_name, "run_id": run_id}, fields={
+                "speed": speed, "distance": distance, "heart_rate": heart_rate})
 
         yield deferLater(reactor, 1, client.sendMeasurement, measurement)\
-              .addErrback(sendFailed, measurement)
+            .addErrback(sendFailed, measurement)
+
 
 def main():
-    client = (len(sys.argv) > 1 and sys.argv[1] == 'udp' and TelegrafUDPClient())\
-                or TelegrafTCPClient()
+    client = (len(sys.argv) > 1 and sys.argv[1] == 'udp' and TelegrafUDPClient(
+    )) or TelegrafTCPClient()
     print("Using client", client.__class__.__name__)
 
     def closeClient(*args):
@@ -56,6 +63,7 @@ def main():
         .addCallbacks(stopReactor, stopReactor)
 
     reactor.run()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)

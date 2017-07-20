@@ -12,7 +12,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from __future__ import (absolute_import, division, print_function, unicode_literals)
+from builtins import str
+from builtins import object
+from __future__ import (
+    absolute_import,
+    division,
+    print_function,
+    unicode_literals)
 
 import time
 from types import StringTypes
@@ -33,14 +39,17 @@ space = ' '
 escaped_space = r'\ '
 underscore = '_'
 
+
 def now_nano():
     return int(time.time() * 1e9)
+
 
 def format_measurement_name(s):
     s = s.replace(single_slash, underscore)
     s = s.replace(comma, escaped_comma)
     s = s.replace(space, escaped_space)
     return s
+
 
 def format_tag(s):
     s = s.replace(single_slash, underscore)
@@ -49,7 +58,9 @@ def format_tag(s):
     s = s.replace(space, escaped_space)
     return s
 
+
 format_field_name = format_tag
+
 
 def format_field_value(v):
     if isinstance(v, StringTypes):
@@ -58,18 +69,33 @@ def format_field_value(v):
     # before the int check because bools are ints and ints are not bools
     elif isinstance(v, bool):
         return v and 'T' or 'F'
-    elif isinstance(v, (int, long)):
+    elif isinstance(v, (int, int)):
         return '%di' % v
     elif isinstance(v, float):
         return str(v)
     else:
         raise Exception("Invalid field. value: %s type: %s" % (v, type(v)))
 
+
 def format_tags(tags):
-    return ",".join(("%s=%s" % (format_tag(k), format_tag(v)) for (k, v) in sorted(tags.items())))
+    return ",".join(
+        ("%s=%s" %
+         (format_tag(k),
+          format_tag(v)) for (
+             k,
+             v) in sorted(
+             tags.items())))
+
 
 def format_fields(fields):
-    return ",".join(("%s=%s" % (format_field_name(k), format_field_value(v)) for (k, v) in sorted(fields.items())))
+    return ",".join(
+        ("%s=%s" %
+         (format_field_name(k),
+          format_field_value(v)) for (
+             k,
+             v) in sorted(
+             fields.items())))
+
 
 class Measurement(object):
     """
@@ -126,4 +152,4 @@ class Measurement(object):
         return " ".join((element0, element1, element2))
 
     def __str__(self):
-        return unicode(self).encode('utf-8')
+        return str(self).encode('utf-8')
