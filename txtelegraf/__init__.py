@@ -19,6 +19,7 @@ from __future__ import (
     unicode_literals)
 
 from txtelegraf.measurement import Measurement
+from txtelegraf.measurement import get_utc_timestamp
 from txtelegraf.udp import TelegrafUDPClient
 from txtelegraf.tcp import TelegrafTCPClient
 from txtelegraf.makebytes import b
@@ -26,6 +27,7 @@ from txtelegraf.makebytes import b
 
 __all__ = [
     'Measurement',
+    'get_utc_timestamp',
     'TelegrafUDPClient',
     'TelegrafTCPClient',
     'b',

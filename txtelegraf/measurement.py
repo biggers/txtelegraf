@@ -40,8 +40,8 @@ escaped_space = r'\ '
 underscore = '_'
 
 
-def now_nano():
-    return int(time.time() * 1e9)
+def get_utc_timestamp():
+    return int(time.mktime(time.gmtime()) * 1e9)
 
 
 def format_measurement_name(s):
@@ -127,8 +127,7 @@ class Measurement(object):
     For best performance you should sort tags by key before sending
     them to the database.
 
-    REF:  https://docs.influxdata.com/influxdb/v1.0/write_protocols/line_protocol_tutorial/
-
+    Ref: https://docs.influxdata.com/influxdb/v1.3/write_protocols/line_protocol_tutorial/  # noqa
     """
     __slots__ = ['name', 'tags', 'fields', 'time']
 
@@ -142,7 +141,7 @@ class Measurement(object):
         self.name = name
         self.tags = tags or {}
         self.fields = fields or {}
-        self.time = time or now_nano()
+        self.time = time
 
     def __repr__(self):
         return 'Measurement(name="%s", tags=%s, fields=%s, time=%s)' % \
@@ -157,8 +156,12 @@ class Measurement(object):
         element0 = ','.join((name, tags)) if tags else name
         element1 = fields
         element2 = time
+        if self.time:
+            influx_fmt = " ".join((element0, element1, element2))
+        else:
+            influx_fmt = " ".join((element0, element1))
 
-        return " ".join((element0, element1, element2))
+        return influx_fmt
 
     def __str__(self):
         # return str(self).encode('utf-8')

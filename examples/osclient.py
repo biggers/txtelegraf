@@ -19,12 +19,20 @@ from __future__ import (
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-from txtelegraf import TelegrafTCPClient, TelegrafUDPClient, Measurement
+from txtelegraf import (
+    Measurement,
+    get_utc_timestamp,
+    TelegrafTCPClient,
+    TelegrafUDPClient,
+)
+
 from twisted.internet.task import deferLater
 # from txtelegraf.main import log
 from twisted.python import log
 
 import sys
+import time
+
 from examples.dummy import dummy_openstack_query
 
 
@@ -37,11 +45,20 @@ def sendFailed(failure, measurement):
 
 @inlineCallbacks
 def writeMeasurements(client):
+    """ Ref:
+    https://docs.influxdata.com/influxdb/v1.3/write_protocols/line_protocol_tutorial/
+    """
+
+    current_time = get_utc_timestamp()
 
     for result in dummy_openstack_query:
 
         name = result['measurement']
         del result['measurement']  # do not break Measurement constructor!
+
+        # replace the (old, buggy-format) time "stamp"
+        result['time'] = current_time
+
         measurement = Measurement(name, **result)
         log.msg('{data}'.format(data=measurement))
 
