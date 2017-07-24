@@ -18,18 +18,21 @@ from __future__ import (
     unicode_literals)
 
 import sys
-import logging
+from twisted.python import log
 
 from twisted.internet import reactor
 from twisted.internet.defer import inlineCallbacks
-from txtelegraf import TelegrafTCPClient, TelegrafUDPClient, Measurement
+from txtelegraf import (
+    Measurement,
+    TelegrafTCPClient,
+    TelegrafUDPClient,
+)
 from twisted.internet.task import deferLater
 
 
 def sendFailed(failure, measurement):
-    print()
-    print('<sendFailed>', measurement)
-    print('\t', failure)
+    log.err('{measure}'.format(measure=measurement))
+    log.err(failure)
 
 
 @inlineCallbacks
@@ -63,10 +66,12 @@ def main():
     TELEGRAF_TCP_PORT = os.getenv('TELEGRAF_TCP_PORT', 8094)
     TELEGRAF_UDP_PORT = os.getenv('TELEGRAF_UDP_PORT', 8092)
 
+    log.startLogging(sys.stdout)
+
     client = (len(sys.argv) > 1 and sys.argv[1] == 'udp'
               and TelegrafUDPClient(TELEGRAF_HOST, TELEGRAF_UDP_PORT)) \
         or TelegrafTCPClient(TELEGRAF_HOST, TELEGRAF_TCP_PORT)
-    print("Using client", client.__class__.__name__)
+    log.msg("Using client {}".format(client.__class__.__name__))
 
     def closeClient(*args):
         return client.close()
@@ -82,5 +87,4 @@ def main():
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
     main()

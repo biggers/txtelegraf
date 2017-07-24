@@ -19,23 +19,29 @@ from __future__ import (
 
 from builtins import str
 from txtelegraf import Measurement
+from txtelegraf.measurement import get_utc_timestamp
 
 
 def test_measurement():
+    now_msec = get_utc_timestamp()
     m1 = Measurement(
         name="metric-name",
         tags={"tag1": "tagval1"},
         fields={"integer_field": 10, "float_field": 10.0,
-                "boolean_field": True, "string_field": "yoohoo"}
+                "boolean_field": True, "string_field": "yoohoo"},
+        time=now_msec
     )
-    assert m1.time is not None
+    assert m1.fields['integer_field'] is 10
+    # NOTE: we're now letting Influx provide timestamps!
+    assert m1.time is now_msec
 
     expected_prefix = (
         'metric-name,tag1=tagval1'
         ' boolean_field=T,float_field=10.0,integer_field=10i,'
         'string_field="yoohoo"')
-    assert str(m1).startswith(expected_prefix), "Expected: '%s' \nFound: '%s'" % (
-        expected_prefix, str(m1))
+    assert str(m1).startswith(expected_prefix),\
+        "Expected: '%s' \nFound: '%s'" % (
+            expected_prefix, str(m1))
 
     # quote in tag name
     # quote in tag value
@@ -69,11 +75,16 @@ def test_measurement_no_tags():
         fields={"integer_field": 10, "float_field": 10.0,
                 "boolean_field": True, "string_field": "yoohoo"}
     )
-    assert m4.time is not None
+    # NOTE: we're now letting Influx provide timestamps!
+    # assert m1.time is not None
+    assert m4.fields['float_field'] is 10.0
+    assert m4.fields['string_field'] is 'yoohoo'
 
     expected_prefix = (
         'metric-name'
         ' boolean_field=T,float_field=10.0,integer_field=10i,'
         'string_field="yoohoo"')
-    assert str(m4).startswith(expected_prefix), "Expected: '%s' \nFound: '%s'" % (
-        expected_prefix, str(m4))
+
+    assert str(m4).startswith(expected_prefix),\
+        "Expected: '%s' \nFound: '%s'" % (
+            expected_prefix, str(m4))

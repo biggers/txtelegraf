@@ -21,10 +21,15 @@ from builtins import str
 
 from setuptools import setup
 from os.path import join as pathjoin, dirname
+from pip.req import parse_requirements
 
 
 def read(*rnames):
     return open(pathjoin(dirname(__file__), *rnames)).read()
+
+
+install_reqs = parse_requirements('requirements.txt', session='hack')
+reqs = [str(ir.req) for ir in install_reqs]
 
 
 setup(
@@ -38,7 +43,7 @@ setup(
     description="A TCP/UDP Telegraf/InfluxDB client for Twisted.",
     long_description=read('README.rst'),
     packages=[str('txtelegraf')],
-    install_requires=['twisted'],
+    install_requires=reqs,
     keywords=["twisted", "telegraf", "influxdb"],
     classifiers=[
         'Development Status :: 4 - Beta',

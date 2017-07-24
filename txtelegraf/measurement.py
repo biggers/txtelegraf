@@ -158,7 +158,7 @@ class Measurement(object):
         element2 = time
         if self.time:
             influx_fmt = " ".join((element0, element1, element2))
-        else:
+        else:  # let Influx provide the timestamp!
             influx_fmt = " ".join((element0, element1))
 
         return influx_fmt

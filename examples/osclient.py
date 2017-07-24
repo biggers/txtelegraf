@@ -25,14 +25,11 @@ from txtelegraf import (
     TelegrafTCPClient,
     TelegrafUDPClient,
 )
-
 from twisted.internet.task import deferLater
 # from txtelegraf.main import log
 from twisted.python import log
 
 import sys
-import time
-
 from examples.dummy import dummy_openstack_query
 
 
@@ -48,7 +45,6 @@ def writeMeasurements(client):
     """ Ref:
     https://docs.influxdata.com/influxdb/v1.3/write_protocols/line_protocol_tutorial/
     """
-
     current_time = get_utc_timestamp()
 
     for result in dummy_openstack_query:
@@ -60,7 +56,7 @@ def writeMeasurements(client):
         result['time'] = current_time
 
         measurement = Measurement(name, **result)
-        log.msg('{data}'.format(data=measurement))
+        # log.msg('{data}'.format(data=measurement))
 
         yield deferLater(reactor, 1, client.sendMeasurement, measurement)\
             .addErrback(sendFailed, measurement)
